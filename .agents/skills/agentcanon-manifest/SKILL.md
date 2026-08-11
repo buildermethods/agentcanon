@@ -20,9 +20,12 @@ manifest is fine; it contains nothing hand-written.
 
 1. Collect skill folders. A skill is any directory containing a `SKILL.md`.
    - Global: each directory in `~/.agents/skills/`.
-   - Project: each directory in the current repo's `.agents/skills/` (if
-     you're in a repo), plus every project already present in the manifest's
-     JSON. Re-scan those projects and drop any that no longer exist.
+   - Project: search the user's system for every project folder holding
+     skills. Crawl likely code locations under the home directory for
+     `.agents/skills/` directories, and for real (non-symlink)
+     `.claude/skills/` directories, that contain skills. Skip
+     `node_modules`, dependency caches, and other vendored or system
+     paths. List the skills of every project found.
 2. Build one record per skill:
    - `name`: the folder name.
    - `description`: the first sentence of the `description` field in its
