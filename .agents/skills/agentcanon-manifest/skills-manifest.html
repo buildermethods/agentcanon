@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Manifest</title>
+<style>
+:root{--bg:#fff;--fg:#1b1b1b;--muted:#6e6e6e;--line:#e6e6e6}
+@media (prefers-color-scheme:dark){:root{--bg:#121212;--fg:#eaeaea;--muted:#9a9a9a;--line:#2b2b2b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:40px 20px 60px}
+h1{font-size:22px;margin:0}
+h2{font-size:16px;margin:36px 0 8px}
+#generated{color:var(--muted);font-size:13px;margin:4px 0 20px}
+#filters{display:flex;gap:8px;margin:0 0 14px}
+#filters button{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+#filters button.active{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+#skills th{cursor:pointer;user-select:none}
+th[data-dir="1"]::after{content:" \2191"}
+th[data-dir="-1"]::after{content:" \2193"}
+td.name{font-weight:600;white-space:nowrap}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--muted)}
+td.created{white-space:nowrap;color:var(--muted);font-size:13.5px}
+tr.empty td{color:var(--muted);text-align:center;padding:24px}
+.ok{color:#2e7d32}.bad{color:#c62828}
+@media (prefers-color-scheme:dark){.ok{color:#7bc67e}.bad{color:#ef9a9a}}
+</style>
+</head>
+<body>
+<main>
+<h1>Skills manifest</h1>
+<p id="generated"></p>
+
+<div id="filters">
+  <button data-filter="all" class="active">All</button>
+  <button data-filter="global">Global</button>
+  <button data-filter="project">Project</button>
+</div>
+
+<div class="tablewrap">
+<table id="skills">
+  <thead><tr>
+    <th data-key="name">Name</th>
+    <th data-key="description">Description</th>
+    <th data-key="location">Location</th>
+    <th data-key="created">Created</th>
+  </tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+
+<h2>Skills folder symlinks</h2>
+<div class="tablewrap">
+<table id="symlinks">
+  <thead><tr><th>Symlink</th><th>Target</th><th>Status</th></tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+</main>
+
+<script type="application/json" id="manifest-data">
+{"generated":"","skills":[],"symlinks":[]}
+</script>
+
+<script>
+(function(){
+  var data = JSON.parse(document.getElementById('manifest-data').textContent);
+  var sortKey = 'name', sortDir = 1, filter = 'all';
+
+  document.getElementById('generated').textContent = data.generated
+    ? 'Generated ' + fmt(data.generated) + '. Ask your agent to "update the skills manifest" to refresh.'
+    : 'Not generated yet. Ask your agent to "update the skills manifest".';
+
+  function fmt(iso){ return String(iso).replace('T', ' ').slice(0, 16); }
+
+  function cell(cls, text){
+    var td = document.createElement('td');
+    if (cls) td.className = cls;
+    td.textContent = text || '';
+    return td;
+  }
+
+  function emptyRow(tbody, text, cols){
+    var tr = document.createElement('tr');
+    tr.className = 'empty';
+    var td = cell('', text);
+    td.colSpan = cols;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+
+  function renderSkills(){
+    var tbody = document.querySelector('#skills tbody');
+    tbody.textContent = '';
+    var rows = data.skills.filter(function(s){ return filter === 'all' || s.scope === filter; });
+    rows.sort(function(a, b){
+      var x = String(a[sortKey] || '').toLowerCase();
+      var y = String(b[sortKey] || '').toLowerCase();
+      return x < y ? -sortDir : x > y ? sortDir : 0;
+    });
+    if (!rows.length){
+      emptyRow(tbody, data.skills.length ? 'No ' + filter + ' skills.' : 'No skills recorded yet.', 4);
+      return;
+    }
+    rows.forEach(function(s){
+      var tr = document.createElement('tr');
+      tr.appendChild(cell('name', s.name));
+      tr.appendChild(cell('', s.description));
+      tr.appendChild(cell('mono', s.location));
+      tr.appendChild(cell('created', fmt(s.created)));
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderSymlinks(){
+    var tbody = document.querySelector('#symlinks tbody');
+    tbody.textContent = '';
+    if (!data.symlinks.length){
+      emptyRow(tbody, 'No symlinks recorded yet.', 3);
+      return;
+    }
+    data.symlinks.forEach(function(l){
+      var tr = document.createElement('tr');
+      tr.appendChild(cell('mono', l.path));
+      tr.appendChild(cell('mono', l.target));
+      tr.appendChild(cell(l.ok ? 'ok' : 'bad', l.ok ? '✓ ok' : '✗ check'));
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.querySelectorAll('#skills th').forEach(function(th){
+    th.addEventListener('click', function(){
+      var k = th.dataset.key;
+      if (sortKey === k){ sortDir = -sortDir; } else { sortKey = k; sortDir = 1; }
+      document.querySelectorAll('#skills th').forEach(function(t){ t.removeAttribute('data-dir'); });
+      th.setAttribute('data-dir', sortDir);
+      renderSkills();
+    });
+  });
+
+  var counts = { all: data.skills.length, global: 0, project: 0 };
+  data.skills.forEach(function(s){ if (counts[s.scope] != null) counts[s.scope]++; });
+  document.querySelectorAll('#filters button').forEach(function(b){
+    b.textContent += ' (' + counts[b.dataset.filter] + ')';
+    b.addEventListener('click', function(){
+      filter = b.dataset.filter;
+      document.querySelectorAll('#filters button').forEach(function(o){ o.classList.remove('active'); });
+      b.classList.add('active');
+      renderSkills();
+    });
+  });
+
+  document.querySelector('#skills th[data-key="name"]').setAttribute('data-dir', '1');
+  renderSkills();
+  renderSymlinks();
+})();
+</script>
+</body>
+</html>

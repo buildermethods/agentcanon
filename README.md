@@ -18,6 +18,7 @@ Point your agent at this repo to get set up.
 - [Setup](#setup)
 - [Going forward](#going-forward)
 - [Sync across machines](#sync-across-machines-optional)
+- [Skills manifest](#skills-manifest-optional)
 
 ## The convention
 
@@ -41,7 +42,8 @@ Cursor, and a growing list of tools already read natively. Claude Code
 reads its own `.claude` locations, hence the two symlinks. If a tool needs
 its own pointer someday, that's one more symlink, never a copy.
 
-(This repo practices the convention: its `CLAUDE.md` is a committed symlink.)
+(This repo practices the convention: its `CLAUDE.md` and `.claude/skills`
+are committed symlinks.)
 
 ## Setup
 
@@ -120,6 +122,25 @@ Git handles syncing; no sync service needed.
   remote. Clone it on your other machines; syncing is a push and a pull.
 - **Projects:** commit your repo's `.agents/` folder and symlinks normally.
   They travel with the project like any other code.
+
+## Skills manifest (optional)
+
+A nicety, not part of the convention; skip it freely. The manifest is a
+single dependency-free HTML page at `~/.agents/skills-manifest.html` that
+lists every skill on your machine (name, description, location, created
+date), sortable and filterable by global or project, plus a list of your
+skills folder symlinks. Open it in any browser.
+
+If you want it, tell your agent:
+
+```
+Install the agentcanon-manifest skill from
+https://github.com/buildermethods/agentcanon: copy
+.agents/skills/agentcanon-manifest/ into ~/.agents/skills/, then use it
+to install the skills manifest.
+```
+
+Refresh it anytime with "update the skills manifest".
 
 ---
 
