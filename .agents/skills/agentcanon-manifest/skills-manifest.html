@@ -8,27 +8,30 @@
 :root{--bg:#fff;--fg:#1b1b1b;--muted:#6e6e6e;--line:#e6e6e6}
 @media (prefers-color-scheme:dark){:root{--bg:#121212;--fg:#eaeaea;--muted:#9a9a9a;--line:#2b2b2b}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-main{max-width:920px;margin:0 auto;padding:40px 20px 60px}
-h1{font-size:22px;margin:0}
-h2{font-size:16px;margin:36px 0 8px}
-#generated{color:var(--muted);font-size:13px;margin:4px 0 20px}
-#filters{display:flex;gap:8px;margin:0 0 14px}
-#filters button{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:1200px;margin:0 auto;padding:40px 20px 60px}
+h1{font-size:24px;margin:0}
+h2{font-size:18px;margin:36px 0 8px}
+#generated{color:var(--muted);font-size:14px;margin:4px 0 20px}
+#filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+#filters button{font:inherit;font-size:14px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
 #filters button.active{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#search{margin-left:auto;display:flex;align-items:center;gap:10px}
+#q{font:inherit;font-size:14px;padding:4px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);width:240px}
+#clearq{font-size:13px;color:var(--muted)}
 .tablewrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+th{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
 #skills th{cursor:pointer;user-select:none}
 th[data-dir="1"]::after{content:" \2191"}
 th[data-dir="-1"]::after{content:" \2193"}
 td.name{font-weight:600;white-space:nowrap}
-td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--muted)}
-td.created{white-space:nowrap;color:var(--muted);font-size:13.5px}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;color:var(--muted)}
+td.created{white-space:nowrap;color:var(--muted);font-size:14.5px}
 tr.empty td{color:var(--muted);text-align:center;padding:24px}
 .ok{color:#2e7d32}.bad{color:#c62828}
-.dup{margin-left:8px;padding:1px 8px;font-size:11px;font-weight:600;color:#b26a00;border:1px solid currentColor;border-radius:999px}
+.dup{margin-left:8px;padding:1px 8px;font-size:12px;font-weight:600;color:#b26a00;border:1px solid currentColor;border-radius:999px}
 @media (prefers-color-scheme:dark){.ok{color:#7bc67e}.bad{color:#ef9a9a}.dup{color:#f0b35e}}
 </style>
 </head>
@@ -41,6 +44,10 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
   <button data-filter="all" class="active">All</button>
   <button data-filter="global">Global</button>
   <button data-filter="project">Project</button>
+  <span id="search">
+    <input id="q" type="search" placeholder="Search names">
+    <a id="clearq" href="#" hidden>clear</a>
+  </span>
 </div>
 
 <div class="tablewrap">
@@ -71,7 +78,7 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
 <script>
 (function(){
   var data = JSON.parse(document.getElementById('manifest-data').textContent);
-  var sortKey = 'name', sortDir = 1, filter = 'all';
+  var sortKey = 'name', sortDir = 1, filter = 'all', query = '';
 
   var nameCounts = {};
   data.skills.forEach(function(s){ nameCounts[s.name] = (nameCounts[s.name] || 0) + 1; });
@@ -101,14 +108,17 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
   function renderSkills(){
     var tbody = document.querySelector('#skills tbody');
     tbody.textContent = '';
-    var rows = data.skills.filter(function(s){ return filter === 'all' || s.scope === filter; });
+    var rows = data.skills.filter(function(s){
+      return (filter === 'all' || s.scope === filter) &&
+        (!query || String(s.name).toLowerCase().indexOf(query) !== -1);
+    });
     rows.sort(function(a, b){
       var x = String(a[sortKey] || '').toLowerCase();
       var y = String(b[sortKey] || '').toLowerCase();
       return x < y ? -sortDir : x > y ? sortDir : 0;
     });
     if (!rows.length){
-      emptyRow(tbody, data.skills.length ? 'No ' + filter + ' skills.' : 'No skills recorded yet.', 4);
+      emptyRow(tbody, data.skills.length ? 'No matching skills.' : 'No skills recorded yet.', 4);
       return;
     }
     rows.forEach(function(s){
@@ -164,6 +174,21 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
       b.classList.add('active');
       renderSkills();
     });
+  });
+
+  var qInput = document.getElementById('q');
+  var clearLink = document.getElementById('clearq');
+  qInput.addEventListener('input', function(){
+    query = qInput.value.trim().toLowerCase();
+    clearLink.hidden = !query;
+    renderSkills();
+  });
+  clearLink.addEventListener('click', function(e){
+    e.preventDefault();
+    qInput.value = '';
+    query = '';
+    clearLink.hidden = true;
+    renderSkills();
   });
 
   document.querySelector('#skills th[data-key="name"]').setAttribute('data-dir', '1');
