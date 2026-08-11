@@ -28,7 +28,8 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px
 td.created{white-space:nowrap;color:var(--muted);font-size:13.5px}
 tr.empty td{color:var(--muted);text-align:center;padding:24px}
 .ok{color:#2e7d32}.bad{color:#c62828}
-@media (prefers-color-scheme:dark){.ok{color:#7bc67e}.bad{color:#ef9a9a}}
+.dup{margin-left:8px;padding:1px 8px;font-size:11px;font-weight:600;color:#b26a00;border:1px solid currentColor;border-radius:999px}
+@media (prefers-color-scheme:dark){.ok{color:#7bc67e}.bad{color:#ef9a9a}.dup{color:#f0b35e}}
 </style>
 </head>
 <body>
@@ -72,6 +73,9 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
   var data = JSON.parse(document.getElementById('manifest-data').textContent);
   var sortKey = 'name', sortDir = 1, filter = 'all';
 
+  var nameCounts = {};
+  data.skills.forEach(function(s){ nameCounts[s.name] = (nameCounts[s.name] || 0) + 1; });
+
   document.getElementById('generated').textContent = data.generated
     ? 'Generated ' + fmt(data.generated) + '. Ask your agent to "update the skills manifest" to refresh.'
     : 'Not generated yet. Ask your agent to "update the skills manifest".';
@@ -109,7 +113,14 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
     }
     rows.forEach(function(s){
       var tr = document.createElement('tr');
-      tr.appendChild(cell('name', s.name));
+      var nameTd = cell('name', s.name);
+      if (nameCounts[s.name] > 1){
+        var b = document.createElement('span');
+        b.className = 'dup';
+        b.textContent = 'duplicate?';
+        nameTd.appendChild(b);
+      }
+      tr.appendChild(nameTd);
       tr.appendChild(cell('', s.description));
       tr.appendChild(cell('mono', s.location));
       tr.appendChild(cell('created', fmt(s.created)));

@@ -45,5 +45,11 @@ manifest is fine; it contains nothing hand-written.
    {"generated": "YYYY-MM-DDTHH:MM", "skills": [...], "symlinks": [...]}
    ```
 
-5. Report the skill and symlink counts, and that the page is at
-   `~/.agents/skills-manifest.html`.
+5. Identify potential duplicates: the same skill name in more than one
+   location. The page badges these automatically; you should also compare
+   each set of copies so you can say whether they're identical (one is
+   safe to remove) or differ.
+6. Report the skill and symlink counts, each potential duplicate with its
+   locations and identical-or-differs status, and that the page is at
+   `~/.agents/skills-manifest.html`. Don't remove or change duplicates;
+   just inform the user.
