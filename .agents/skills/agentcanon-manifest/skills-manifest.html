@@ -11,8 +11,10 @@
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 main{max-width:1200px;margin:0 auto;padding:40px 20px 60px}
 h1{font-size:24px;margin:0}
-h2{font-size:18px;margin:36px 0 8px}
 #generated{color:var(--muted);font-size:14px;margin:4px 0 20px}
+#tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin:0 0 18px}
+#tabs button{font:inherit;font-size:15px;padding:8px 2px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+#tabs button.active{color:var(--fg);border-bottom-color:var(--fg)}
 #filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
 #filters button{font:inherit;font-size:14px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
 #filters button.active{background:var(--fg);color:var(--bg);border-color:var(--fg)}
@@ -33,6 +35,8 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
 .ok{color:#2e7d32}.bad{color:#c62828}
 .dup{margin-left:8px;padding:1px 8px;font-size:12px;font-weight:600;color:#b26a00;border:1px solid currentColor;border-radius:999px}
 @media (prefers-color-scheme:dark){.ok{color:#7bc67e}.bad{color:#ef9a9a}.dup{color:#f0b35e}}
+footer{margin-top:40px;font-size:13px;color:var(--muted)}
+footer a{color:inherit}
 </style>
 </head>
 <body>
@@ -40,6 +44,12 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
 <h1>Skills manifest</h1>
 <p id="generated"></p>
 
+<nav id="tabs">
+  <button data-tab="skills" class="active">Skills</button>
+  <button data-tab="symlinks">Symlinks</button>
+</nav>
+
+<section id="tab-skills">
 <div id="filters">
   <button data-filter="all" class="active">All</button>
   <button data-filter="global">Global</button>
@@ -62,13 +72,18 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
 </table>
 </div>
 
-<h2>Skills folder symlinks</h2>
+</section>
+
+<section id="tab-symlinks" hidden>
 <div class="tablewrap">
 <table id="symlinks">
   <thead><tr><th>Symlink</th><th>Target</th><th>Status</th></tr></thead>
   <tbody></tbody>
 </table>
 </div>
+</section>
+
+<footer>Generated using <a href="https://github.com/buildermethods/agentcanon">agentcanon</a></footer>
 </main>
 
 <script type="application/json" id="manifest-data">
@@ -84,8 +99,8 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
   data.skills.forEach(function(s){ nameCounts[s.name] = (nameCounts[s.name] || 0) + 1; });
 
   document.getElementById('generated').textContent = data.generated
-    ? 'Generated ' + fmt(data.generated) + '. Ask your agent to "update the skills manifest" to refresh.'
-    : 'Not generated yet. Ask your agent to "update the skills manifest".';
+    ? 'Generated ' + fmt(data.generated) + '. To refresh, ask your agent to "update the skills manifest" or run skill /agentcanon-manifest.'
+    : 'Not generated yet. Ask your agent to "update the skills manifest" or run skill /agentcanon-manifest.';
 
   function fmt(iso){ return String(iso).replace('T', ' ').slice(0, 16); }
 
@@ -173,6 +188,15 @@ tr.empty td{color:var(--muted);text-align:center;padding:24px}
       document.querySelectorAll('#filters button').forEach(function(o){ o.classList.remove('active'); });
       b.classList.add('active');
       renderSkills();
+    });
+  });
+
+  document.querySelectorAll('#tabs button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#tabs button').forEach(function(o){ o.classList.remove('active'); });
+      b.classList.add('active');
+      document.getElementById('tab-skills').hidden = b.dataset.tab !== 'skills';
+      document.getElementById('tab-symlinks').hidden = b.dataset.tab !== 'symlinks';
     });
   });
 
