@@ -18,6 +18,7 @@ Point your agent at this repo to get set up.
 - [The convention](#the-convention)
 - [Setup](#setup)
 - [Going forward](#going-forward)
+- [Repo converter skill](#repo-converter-skill-optional)
 - [Sync across machines](#sync-across-machines-optional)
 - [Skills manifest](#skills-manifest-optional)
 
@@ -114,6 +115,26 @@ Going forward, stick to the agentcanon convention by following these best practi
 2. **Never put skill folders in a `.claude/skills/` path.** Same goes for other skills folders. Those should be symlinked to `~/.agents/skills/` or `<project>/.agents/skills/`.
 3. Write agent instructions to your project's `AGENTS.md`. `CLAUDE.md` should be symlinked to it.
 4. Use a template repo? Build these conventions into it (using the prompt above) so that you're always using the agentcanon convention.
+
+## Repo converter skill (optional)
+
+The setup prompt above already converts the repo you're in. If you
+convert repos often, install `agentcanon-repo` as a global skill instead:
+run it inside any repo and it finds skills living outside
+`.agents/skills/`, moves them there, turns the old folders (like a real
+`.claude/skills`) into symlinks, and merges `CLAUDE.md` into `AGENTS.md`
+with a symlink back. It always shows you the plan — every move, merge,
+and symlink — and waits for your approval before touching anything.
+
+To install it, tell your agent:
+
+```
+Install the agentcanon-repo skill from
+https://github.com/buildermethods/agentcanon: copy
+.agents/skills/agentcanon-repo/ into ~/.agents/skills/.
+```
+
+Then, inside any repo: "convert this repo to the agentcanon convention".
 
 ## Sync across machines (optional)
 
