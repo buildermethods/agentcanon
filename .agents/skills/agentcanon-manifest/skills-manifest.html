@@ -8,34 +8,34 @@
 :root{--bg:#fff;--fg:#1b1b1b;--muted:#6e6e6e;--line:#e6e6e6}
 @media (prefers-color-scheme:dark){:root{--bg:#121212;--fg:#eaeaea;--muted:#9a9a9a;--line:#2b2b2b}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-main{max-width:1200px;margin:0 auto;padding:40px 20px 60px}
-h1{font-size:24px;margin:0}
-#generated{color:var(--muted);font-size:14px;margin:4px 0 20px}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{padding:40px 50px 60px}
+h1{font-size:26px;margin:0}
+#generated{color:var(--muted);font-size:15px;margin:4px 0 20px}
 #tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin:0 0 18px}
-#tabs button{font:inherit;font-size:15px;padding:8px 2px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+#tabs button{font:inherit;font-size:16px;padding:8px 2px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
 #tabs button.active{color:var(--fg);border-bottom-color:var(--fg)}
 #filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
-#filters button{font:inherit;font-size:14px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+#filters button{font:inherit;font-size:15px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
 #filters button.active{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 #search{margin-left:auto;display:flex;align-items:center;gap:10px}
-#q{font:inherit;font-size:14px;padding:4px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);width:240px}
-#clearq{font-size:13px;color:var(--muted)}
+#q{font:inherit;font-size:15px;padding:4px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);width:240px}
+#clearq{font-size:14px;color:var(--muted)}
 .tablewrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+th{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
 #skills th{cursor:pointer;user-select:none}
 th[data-dir="1"]::after{content:" \2191"}
 th[data-dir="-1"]::after{content:" \2193"}
 td.name{font-weight:600;white-space:nowrap}
-td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;color:var(--muted)}
-td.created{white-space:nowrap;color:var(--muted);font-size:14.5px}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14.5px;color:var(--muted)}
+td.created{white-space:nowrap;color:var(--muted);font-size:15.5px}
 tr.empty td{color:var(--muted);text-align:center;padding:24px}
 .ok{color:#2e7d32}.bad{color:#c62828}
-.dup{margin-left:8px;padding:1px 8px;font-size:12px;font-weight:600;color:#b26a00;border:1px solid currentColor;border-radius:999px}
+.dup{margin-left:8px;padding:1px 8px;font-size:13px;font-weight:600;color:#b26a00;border:1px solid currentColor;border-radius:999px}
 @media (prefers-color-scheme:dark){.ok{color:#7bc67e}.bad{color:#ef9a9a}.dup{color:#f0b35e}}
-footer{margin-top:40px;font-size:13px;color:var(--muted)}
+footer{margin-top:40px;font-size:14px;color:var(--muted)}
 footer a{color:inherit}
 </style>
 </head>
@@ -54,6 +54,7 @@ footer a{color:inherit}
   <button data-filter="all" class="active">All</button>
   <button data-filter="global">Global</button>
   <button data-filter="project">Project</button>
+  <button data-filter="dupes">Duplicates</button>
   <span id="search">
     <input id="q" type="search" placeholder="Search names">
     <a id="clearq" href="#" hidden>clear</a>
@@ -83,7 +84,7 @@ footer a{color:inherit}
 </div>
 </section>
 
-<footer>Generated using <a href="https://github.com/buildermethods/agentcanon">agentcanon</a></footer>
+<footer>Generated using <a href="https://github.com/buildermethods/agentcanon" target="_blank" rel="noopener">agentcanon</a></footer>
 </main>
 
 <script type="application/json" id="manifest-data">
@@ -124,8 +125,10 @@ footer a{color:inherit}
     var tbody = document.querySelector('#skills tbody');
     tbody.textContent = '';
     var rows = data.skills.filter(function(s){
-      return (filter === 'all' || s.scope === filter) &&
-        (!query || String(s.name).toLowerCase().indexOf(query) !== -1);
+      var inFilter = filter === 'all' ? true
+        : filter === 'dupes' ? nameCounts[s.name] > 1
+        : s.scope === filter;
+      return inFilter && (!query || String(s.name).toLowerCase().indexOf(query) !== -1);
     });
     rows.sort(function(a, b){
       var x = String(a[sortKey] || '').toLowerCase();
@@ -179,8 +182,11 @@ footer a{color:inherit}
     });
   });
 
-  var counts = { all: data.skills.length, global: 0, project: 0 };
-  data.skills.forEach(function(s){ if (counts[s.scope] != null) counts[s.scope]++; });
+  var counts = { all: data.skills.length, global: 0, project: 0, dupes: 0 };
+  data.skills.forEach(function(s){
+    if (counts[s.scope] != null) counts[s.scope]++;
+    if (nameCounts[s.name] > 1) counts.dupes++;
+  });
   document.querySelectorAll('#filters button').forEach(function(b){
     b.textContent += ' (' + counts[b.dataset.filter] + ')';
     b.addEventListener('click', function(){
@@ -213,6 +219,13 @@ footer a{color:inherit}
     query = '';
     clearLink.hidden = true;
     renderSkills();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === '/' && document.activeElement !== qInput){
+      e.preventDefault();
+      qInput.focus();
+    }
   });
 
   document.querySelector('#skills th[data-key="name"]').setAttribute('data-dir', '1');
