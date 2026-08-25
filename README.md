@@ -118,13 +118,16 @@ Going forward, stick to the agentcanon convention by following these best practi
 
 ## Repo converter skill (optional)
 
-The setup prompt above already converts the repo you're in. If you
-convert repos often, install `agentcanon-repo` as a global skill instead:
-run it inside any repo and it finds skills living outside
-`.agents/skills/`, moves them there, turns the old folders (like a real
-`.claude/skills`) into symlinks, and merges `CLAUDE.md` into `AGENTS.md`
-with a symlink back. It always shows you the plan — every move, merge,
-and symlink — and waits for your approval before touching anything.
+The setup prompt above is aimed at your global skills; it can also
+convert the repo you happen to be in, but that's a one-time pass.
+`agentcanon-repo` is the simpler way to bring any repo onto the
+convention later: install it once as a global skill, then run it inside
+a repo that hasn't adopted agentcanon yet. It finds skills living
+outside `.agents/skills/`, moves them there, turns the old folders (like
+a real `.claude/skills`) into symlinks, and merges `CLAUDE.md` into
+`AGENTS.md` with a symlink back. It always shows you the plan — every
+move, merge, and symlink — and waits for your approval before touching
+anything.
 
 To install it, tell your agent:
 
