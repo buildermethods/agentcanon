@@ -3,7 +3,7 @@
 **One canonical home for all your agent skills and instructions.**
 
 Most AI tools have settled on a standard: skills live in `.agents/skills/`
-and instructions live in `AGENTS.md`. Codex, Cursor, and most newer tools
+and instructions live in `AGENTS.md`. Codex and most newer tools
 read them natively. But a few holdouts (_ahem, Claude Code_) still look in
 their own locations instead, so you end up with duplicate skill folders, a
 `CLAUDE.md` here and an `AGENTS.md` there, copies that drift apart, and no
@@ -39,8 +39,8 @@ any-project/
 ```
 
 Why `.agents` and `AGENTS.md` as canon? They're the vendor-neutral
-[Agent Skills](https://agentskills.io) / AGENTS.md standards that Codex,
-Cursor, and a growing list of tools already read natively. Claude Code
+[Agent Skills](https://agentskills.io) / AGENTS.md standards that Codex and
+a growing list of tools already read natively. Claude Code
 reads its own `.claude` locations, hence the two symlinks. If a tool needs
 its own pointer someday, that's one more symlink, never a copy.
 
